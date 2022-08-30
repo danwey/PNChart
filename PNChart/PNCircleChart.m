@@ -162,7 +162,7 @@ displayCountingLabel:(BOOL)displayCountingLabel
         self.gradientMask.strokeColor = [[UIColor blackColor] CGColor];
         self.gradientMask.lineWidth = _circle.lineWidth;
         self.gradientMask.lineCap = kCALineCapRound;
-        CGRect gradientFrame = CGRectMake(0, 0, 2*self.bounds.size.width, 2*self.bounds.size.height);
+        CGRect gradientFrame = CGRectMake(0, 0, 1.2*self.bounds.size.width, 1.2*self.bounds.size.height);
         self.gradientMask.frame = gradientFrame;
         self.gradientMask.path = _circle.path;
 
