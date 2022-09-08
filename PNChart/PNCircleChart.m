@@ -6,7 +6,11 @@
 //  Copyright (c) 2013年 kevinzhow. All rights reserved.
 //
 
-#import "PNChart/PNCircleChart.h"
+#import "PNCircleChart.h"
+
+@interface PNCircleChart ()
+
+@end
 
 @implementation PNCircleChart
 
@@ -162,13 +166,21 @@ displayCountingLabel:(BOOL)displayCountingLabel
         self.gradientMask.strokeColor = [[UIColor blackColor] CGColor];
         self.gradientMask.lineWidth = _circle.lineWidth;
         self.gradientMask.lineCap = kCALineCapRound;
-        CGRect gradientFrame = CGRectMake(0, 0, 1.2*self.bounds.size.width, 1.2*self.bounds.size.height);
+        CGRect gradientFrame = CGRectMake(0, 0, self.bounds.size.width * 1.2, self.bounds.size.height * 1.2);
         self.gradientMask.frame = gradientFrame;
         self.gradientMask.path = _circle.path;
 
         CAGradientLayer *gradientLayer = [CAGradientLayer layer];
-        gradientLayer.startPoint = CGPointMake(0.5,1.0);
-        gradientLayer.endPoint = CGPointMake(0.5,0.0);
+        
+        CGFloat value = [_current floatValue] * 360/ 100.0;
+        
+        CGFloat sinx = 0.5 + sin(value * M_PI / 180)/2;
+        CGFloat cosx = 0.5 - cos(value  * M_PI / 180)/2;
+        
+        gradientLayer.startPoint = CGPointMake(0.5,0.0);
+//        gradientLayer.endPoint = CGPointMake(cosx,sinx);
+        gradientLayer.endPoint = CGPointMake(sinx,cosx);
+        
         gradientLayer.frame = gradientFrame;
         UIColor *endColor = (_strokeColor ? _strokeColor : [UIColor greenColor]);
         NSArray *colors = @[
@@ -207,7 +219,6 @@ displayCountingLabel:(BOOL)displayCountingLabel
 
 -(void)updateChartByCurrent:(NSNumber *)current byTotal:(NSNumber *)total {
     double totalPercentageValue = [current floatValue]/([total floatValue]/100.0);
-    
     if (_strokeColorGradientStart) {
         self.gradientMask.strokeEnd = _circle.strokeEnd;
     }
@@ -241,7 +252,7 @@ displayCountingLabel:(BOOL)displayCountingLabel
 
 - (void)addAnimationIfNeeded
 {
-    double percentageValue = (_current.floatValue / _total.floatValue) * 100.0f;
+    double percentageValue = [_current floatValue]/([_total floatValue]/100.0);
     
     if (self.displayAnimated) {
         CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
@@ -250,18 +261,14 @@ displayCountingLabel:(BOOL)displayCountingLabel
         pathAnimation.fromValue = @(0.0f);
         pathAnimation.toValue = @([_current floatValue] / [_total floatValue]);
         [_circle addAnimation:pathAnimation forKey:@"strokeEndAnimation"];
-        if(_displayCountingLabel)
-        {
-            [_countingLabel countFrom:0 to:percentageValue withDuration:self.duration];
-        }
+        [_countingLabel countFrom:0 to:percentageValue withDuration:self.duration];
+        
         if (self.gradientMask && _strokeColorGradientStart) {
             [self.gradientMask addAnimation:pathAnimation forKey:@"strokeEndAnimation"];
         }
     }
     else {
-        if (_displayCountingLabel) {
-            [_countingLabel countFrom:percentageValue to:percentageValue withDuration:self.duration];
-        }
+        [_countingLabel countFrom:percentageValue to:percentageValue withDuration:self.duration];
     }
 }
 
